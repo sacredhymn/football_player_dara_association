@@ -1,7 +1,7 @@
-import sys
 import cv2
 import json
 from optimize_json import tracklets
+from football_field import football_filed
 
 video_cam01 = "videos/0105CAM01.mp4"
 video_cam02 = "videos/0105CAM02.mp4"
@@ -61,7 +61,53 @@ class Player:
             if cv2.waitKey(0) & 0xFF == 27:  # Esc pressed
                 break
 
+class filed_player:
+    def __init__(self, tracklets, football_filed, get_details):
+        self.cap01 = cv2.VideoCapture(video_cam01)
+        self.cap02 = cv2.VideoCapture(video_cam02)
+        self.frame_count = 0
+        self.tracklets = tracklets
+        self.football_filed = football_filed
+        self.get_details = get_details
+
+    def put_circle(self, football_filed, frame, center, tracklet_id, cam):
+        color = (255, 0, 0)
+        if cam == "cam02":
+            color = (0, 0, 255)
+        cv2.putText(frame, cam, (85, 0), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 1)
+        cv2.circle(football_filed, center, radius=3, color=color, thickness=-1)
+        cv2.putText(football_filed, str(tracklet_id), center, 1, 1, (255, 255, 0), 1)
+
+    def run(self):
+        scale, pitch_pad_w, pitch_pad_h, width, height = self.get_details()
+        while (self.cap01.isOpened() and self.cap02.isOpened()):
+            self.frame_count += 1
+            football_filed = self.football_filed.copy()
+            success1, frame1 = self.cap01.read()
+            success2, frame2 = self.cap02.read()
+
+            if not (success1 and success2):
+                break
+
+            for tracklet in self.tracklets:
+                for frame in self.tracklets[tracklet]['trails']:
+                    if self.frame_count == frame['frame_lable'] and 'cam01' in frame.keys():
+                        self.put_circle(football_filed, self.frame_count, (int(frame['pitch']['x']*width*scale), int(frame['pitch']['y']*height*scale)),
+                                                           self.tracklets[tracklet]['tracklet_id'], "cam01")
+                        break
+                    if self.frame_count == frame['frame_lable'] and 'cam02' in frame.keys():
+                        self.put_circle(football_filed, self.frame_count, (int(frame['pitch']['x']*width*scale), int(frame['pitch']['y']*height*scale)),
+                                                           self.tracklets[tracklet]['tracklet_id'], "cam02")
+                        break
+            cv2.imshow('WINDOW', football_filed)
+            if cv2.waitKey(1) & 0xFF == 27:  # Esc pressed
+                break
+
 
 if __name__ == '__main__':
-    player = Player()
+    # player = Player()
+    # player.run()
+    filed =football_filed()
+    football_filled_image = filed.get_football_filed()
+    player = filed_player(tracklets, football_filled_image, filed.get_football_details)
     player.run()

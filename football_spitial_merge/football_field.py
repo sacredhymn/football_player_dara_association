@@ -1,31 +1,56 @@
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpathes
-import numpy as np
 import cv2
+import numpy as np
 
-# 球场外扩pad
-std_pitch_pad_w = 10
-std_pitch_pad_h = 5
 
-# 球场宽度、高度
-std_pitch_width = 105
-std_pitch_height = 68
+class football_filed:
+    def __init__(self):
+        self.scale = 10
+        self.pitch_pad_w = 10
+        self.pitch_pad_h = 5
+        self.width = 105
+        self.height = 68
+        self.zone_width = 16.5
+        self.zone_height = 40.32
+        self.circle_radius = 9.15
 
-# 标准禁区宽度、高度
-std_zone_width = 16.5
-std_zone_height = 40.32
+    def get_football_details(self):
+        return self.scale, self.pitch_pad_w, self.pitch_pad_h, self.width, self.height
 
-# 中圈半径
-std_circle_radius = 9.15
+    def get_football_filed(self):
+        # 外扩
+        blank_image = np.ones(((self.height + self.pitch_pad_h*2)*self.scale, (self.width + self.pitch_pad_w*2)*self.scale, 3), np.float32)
+        blank_image[:, :] = (0, 255, 0)
 
-# 缩放比例
-scale = 15
+        # 球场
+        blank_image[5*self.scale-2:73*self.scale+2, 10*self.scale-2:115*self.scale+2] = (255, 255, 255)
+        blank_image[5*self.scale:73*self.scale, 10*self.scale:115*self.scale] = (0, 255, 0)
 
-fig, ax = plt.subplots()
+        # 禁区
+        zone1_height_top = (self.height/2 + self.pitch_pad_h - self.zone_height/2)*self.scale
+        zone1_height_down = (self.height/2 + self.pitch_pad_h + self.zone_height/2)*self.scale
+        blank_image[int(zone1_height_top)-2:int(zone1_height_down)+2,
+                    int(self.pitch_pad_w*self.scale)-2:int((self.zone_width + self.pitch_pad_w)*self.scale)+2] = (255, 255, 255)
+        blank_image[int((self.height/2 + self.pitch_pad_h - self.zone_height/2)*self.scale):int((self.height/2 + self.pitch_pad_h + self.zone_height/2)*self.scale),
+                    int(self.pitch_pad_w*self.scale):int((self.zone_width + self.pitch_pad_w)*self.scale)] = (0, 255, 0)
 
-#长方形
-rect = mpathes.Rectangle((0, 0), std_pitch_width + std_pitch_pad_w*2, std_pitch_height + std_pitch_pad_h*2)
-rect2 = mpathes.Rectangle((std_pitch_pad_w, std_pitch_pad_h), std_pitch_width, std_pitch_height)
-ax.add_patch(rect)
-ax.add_patch(rect2)
-plt.show()
+        zone2_height_top = (self.height/2 + self.pitch_pad_h - self.zone_height/2)*self.scale
+        zone2_height_down = (self.height/2 + self.pitch_pad_h + self.zone_height/2)*self.scale
+        blank_image[int(zone2_height_top)-2:int(zone2_height_down)+2,
+                    int((self.pitch_pad_w + self.width - self.zone_width)*self.scale)-2:int((self.width + self.pitch_pad_w)*self.scale)+2] = (255, 255, 255)
+        blank_image[int(zone2_height_top):int(zone2_height_down),
+                    int((self.pitch_pad_w + self.width - self.zone_width)*self.scale):int((self.width + self.pitch_pad_w)*self.scale)] = (0, 255, 0)
+
+        # 中间线
+        blank_image[5*self.scale-2:73*self.scale+2, int(self.pitch_pad_w + self.width/2)*self.scale - 1:int(self.pitch_pad_w + self.width/2)*self.scale + 1] = (255, 255, 255)
+
+        # 画圆
+        center = (int(self.pitch_pad_w + self.width/2)*self.scale), int((self.pitch_pad_h + self.height/2)*self.scale)
+        cv2.circle(blank_image, center, radius = int(self.circle_radius*self.scale), color=(255, 255, 255), thickness=1)
+        return blank_image
+
+
+if __name__ == "__main__":
+    football_filed = football_filed()
+    blank_image = football_filed.get_football_filed()
+    cv2.imshow("result", blank_image)
+    cv2.waitKey(0)
