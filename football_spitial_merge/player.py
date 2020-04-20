@@ -61,6 +61,7 @@ class Player:
             if cv2.waitKey(0) & 0xFF == 27:  # Esc pressed
                 break
 
+
 class filed_player:
     def __init__(self, tracklets, football_filed, get_details):
         self.cap01 = cv2.VideoCapture(video_cam01)
@@ -74,9 +75,9 @@ class filed_player:
         color = (255, 0, 0)
         if cam == "cam02":
             color = (0, 0, 255)
-        cv2.putText(frame, cam, (85, 0), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 1)
+        cv2.putText(football_filed, str(frame), (0,85), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 1)
         cv2.circle(football_filed, center, radius=3, color=color, thickness=-1)
-        cv2.putText(football_filed, str(tracklet_id), center, 1, 1, (255, 255, 0), 1)
+        cv2.putText(football_filed, str(tracklet_id), center, 1, 1, (125, 125, 125), 1)
 
     def run(self):
         scale, pitch_pad_w, pitch_pad_h, width, height = self.get_details()
@@ -100,7 +101,7 @@ class filed_player:
                                                            self.tracklets[tracklet]['tracklet_id'], "cam02")
                         break
             cv2.imshow('WINDOW', football_filed)
-            if cv2.waitKey(1) & 0xFF == 27:  # Esc pressed
+            if cv2.waitKey(0) & 0xFF == 27:  # Esc pressed
                 break
 
 
@@ -109,5 +110,5 @@ if __name__ == '__main__':
     # player.run()
     filed =football_filed()
     football_filled_image = filed.get_football_filed()
-    player = filed_player(tracklets, football_filled_image, filed.get_football_details)
-    player.run()
+    filed_player = filed_player(tracklets, football_filled_image, filed.get_football_details)
+    filed_player.run()

@@ -15,7 +15,7 @@ for tracklet in delete_tracklets:
     del tracklets[tracklet]
 
 for tracklet in tracklets:
-    if len(tracklets[tracklet]['trails']) <= 2:
+    if len(tracklets[tracklet]['trails']) <= 10:
         delete_tracklets2.append(tracklet)
 
 for tracklet in delete_tracklets2:
