@@ -112,3 +112,4 @@ if __name__ == '__main__':
     football_filled_image = filed.get_football_filed()
     filed_player = filed_player(tracklets, football_filled_image, filed.get_football_details)
     filed_player.run()
+    #
